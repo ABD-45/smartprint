@@ -1,0 +1,33 @@
+<service>
+	<id>smartprintagent.exe</id>
+	<name>SmartPrintAgent</name>
+	<description>Automated background print agent for Zero-Touch printing.</description>
+	<executable>E:\nodejs\node.exe</executable>
+	<argument>--harmony</argument>
+	<argument>E:\30days\smartprint\print-agent\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>E:\30days\smartprint\print-agent\agent.js</argument>
+	<argument>--scriptoptions=</argument>
+	<argument>--log</argument>
+	<argument>SmartPrintAgent wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<logmode>rotate</logmode>
+	<stoptimeout>30sec</stoptimeout>
+	<env name="SERVER_URL" value="http://localhost:5000"/>
+	<env name="SHOP_ID" value="shop-001"/>
+	<serviceaccount>
+		<domain>BEN</domain>
+		<user>LocalSystem</user>
+		<password></password>
+	</serviceaccount>
+	<workingdirectory>E:\30days\smartprint\print-agent</workingdirectory>
+</service>
