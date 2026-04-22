@@ -148,7 +148,7 @@ const verifyPayment = async (req, res) => {
         // Send WhatsApp notification
         await job.populate("userId", "name phone");
         if (job.userId?.phone) {
-          const { sendJobQueuedNotification } = require("../services/whatsappService");
+          const { sendJobQueuedNotification } = require("../services/notificationService");
           sendJobQueuedNotification(job.userId.phone, job.originalName, position, etaMinutes);
         }
       }

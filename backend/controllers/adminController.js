@@ -5,7 +5,7 @@ const { getQueue, removeFromQueue, broadcastQueue } = require("../queue/queueMan
 const { generateOTP } = require("../utils/helpers");
 const { printFile } = require("../services/printService");
 const { getPresignedUrl } = require("../services/minioService");
-const { sendJobReadyNotification, sendJobFailedNotification } = require("../services/whatsappService");
+const { sendJobReadyNotification, sendJobFailedNotification } = require("../services/notificationService");
 
 /**
  * GET /api/admin/jobs — All jobs with filters

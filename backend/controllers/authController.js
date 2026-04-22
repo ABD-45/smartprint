@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { generateOTP } = require("../utils/helpers");
-const { sendVerificationOTP } = require("../services/whatsappService");
+const { sendVerificationOTP } = require("../services/notificationService");
 
 // Temporary store for verification OTPs (Use Redis in production)
 const verificationStore = new Map();
