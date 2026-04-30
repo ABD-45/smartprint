@@ -9,7 +9,7 @@ const JobSchema = new mongoose.Schema(
     },
     userRole: {
       type: String,
-      enum: ["student", "staff", "admin"],
+      enum: ["student", "staff", "admin", "printshop"],
       required: true,
     },
     // File details

@@ -29,7 +29,11 @@ const initBucket = async () => {
 };
 
 // Initialize bucket on module load
-initBucket();
+if (process.env.MINIO_ENDPOINT) {
+  initBucket().catch(err => {
+    console.error("Failed to initialize MinIO bucket:", err.message);
+  });
+}
 
 /**
  * Upload a file buffer to MinIO

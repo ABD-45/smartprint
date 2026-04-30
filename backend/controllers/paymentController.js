@@ -139,18 +139,18 @@ const verifyPayment = async (req, res) => {
 
       // Add to priority queue
       const io = req.app.get("io");
-      if (!io) {
-        console.warn("⚠️  Socket.IO not available");
-      } else {
-        const { position, etaMinutes } = await addJobToQueue(job, io);
-        console.log(`✓ Job ${job._id} added to queue at position ${position}`);
+      const { position, etaMinutes } = await addJobToQueue(job, io);
+      console.log(`✓ Job ${job._id} added to queue at position ${position}`);
 
-        // Send WhatsApp notification
-        await job.populate("userId", "name phone");
-        if (job.userId?.phone) {
-          const { sendJobQueuedNotification } = require("../services/notificationService");
-          sendJobQueuedNotification(job.userId.phone, job.originalName, position, etaMinutes);
-        }
+      // Send WhatsApp notification
+      await job.populate("userId", "name phone");
+      if (job.userId?.phone) {
+        const { sendJobQueuedNotification } = require("../services/notificationService");
+        sendJobQueuedNotification(job.userId.phone, job.originalName, position, etaMinutes);
+      }
+      
+      if (!io) {
+        console.warn("⚠️  Socket.IO not available for broadcasting queue updates");
       }
     } catch (jobErr) {
       console.error(`❌ Error processing job for payment: ${jobErr.message}`);
