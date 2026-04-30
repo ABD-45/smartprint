@@ -50,7 +50,7 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
  * @param {string} fileName - unique file name (key)
  * @param {Buffer} fileBuffer - file data
  * @param {string} mimeType - MIME type
- * @returns {object} - { path, url, error }
+ * @returns {string} - public URL of uploaded file
  */
 const uploadFileToSupabase = async (fileName, fileBuffer, mimeType) => {
   try {
@@ -63,19 +63,19 @@ const uploadFileToSupabase = async (fileName, fileBuffer, mimeType) => {
 
     if (error) {
       console.error("❌ Supabase upload error:", error.message);
-      return { path: null, url: null, error };
+      throw error;
     }
 
-    // Get public URL or signed URL
-    const { data: urlData } = supabase.storage
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
       .from(BUCKET)
-      .getPublicUrl(data.path);
+      .getPublicUrl(fileName);
 
-    console.log(`✅ File uploaded to Supabase: ${data.path}`);
-    return { path: data.path, url: urlData.publicUrl, error: null };
+    console.log(`✅ File uploaded to Supabase: ${fileName}`);
+    return publicUrlData.publicUrl;
   } catch (err) {
     console.error("Supabase upload exception:", err.message);
-    return { path: null, url: null, error: err };
+    throw err;
   }
 };
 
