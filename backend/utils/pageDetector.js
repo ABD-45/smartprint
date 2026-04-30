@@ -74,27 +74,33 @@ const detectPageCount = async (buffer, mimeType, originalName = "") => {
   console.log(`   [pageDetector] File: ${originalName || "unknown"} | ext=${ext} | magic=${magicType} | mime=${mime} → type=${fileType}`);
 
   // ── PDF ──────────────────────────────────────────────────────────────────
+  // Priority: pdf-lib (best for scanned/image PDFs) → pdf-parse → size heuristic
   if (fileType === "pdf" || mime === "application/pdf" || ext === "pdf") {
-    try {
-      const parser = new PDFParse({ data: buffer, verbosity: 0 });
-      await parser.load();
-      const pages = Math.max(1, parser.doc.numPages);
-      console.log(`   [pageDetector] pdf-parse → ${pages} pages`);
-      return { pages, method: "pdf-parse", confidence: "exact" };
-    } catch (e1) {
-      console.warn("   [pageDetector] pdf-parse failed:", e1.message);
-    }
+    // Tier 1: pdf-lib (most reliable for scanned + image-heavy PDFs)
+    // Uses PDF page structure directly, not text extraction
     try {
       const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
       const pages = Math.max(1, pdfDoc.getPageCount());
-      console.log(`   [pageDetector] pdf-lib → ${pages} pages`);
+      console.log(`   [pageDetector] pdf-lib (structure) → ${pages} pages [scanned-safe]`);
       return { pages, method: "pdf-lib", confidence: "exact" };
-    } catch (e2) {
-      console.warn("   [pageDetector] pdf-lib failed:", e2.message);
+    } catch (e1) {
+      console.warn("   [pageDetector] pdf-lib failed:", e1.message);
     }
-    // Fallback: size-based heuristic (roughly 3KB per page)
+
+    // Tier 2: pdf-parse (fallback, uses numpages from PDF metadata)
+    // Works for both text and image PDFs, but pdf-lib is more robust
+    try {
+      const data = await pdfParse(buffer);
+      const pages = Math.max(1, data.numpages);
+      console.log(`   [pageDetector] pdf-parse (metadata) → ${pages} pages`);
+      return { pages, method: "pdf-parse", confidence: "exact" };
+    } catch (e2) {
+      console.warn("   [pageDetector] pdf-parse failed:", e2.message);
+    }
+
+    // Tier 3: Size-based heuristic (last resort, roughly 3KB per page)
     const pages = Math.max(1, Math.ceil(buffer.length / 3072));
-    console.log(`   [pageDetector] size-heuristic → ${pages} pages`);
+    console.log(`   [pageDetector] size-heuristic → ${pages} pages [estimated]`);
     return { pages, method: "size-heuristic", confidence: "estimated" };
   }
 
