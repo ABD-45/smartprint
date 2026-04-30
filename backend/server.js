@@ -18,13 +18,28 @@ const { initQueueManager } = require("./queue/queueManager");
 const app = express();
 const server = http.createServer(app);
 
-// Socket.IO
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    methods: ["GET", "POST"],
-    credentials: true,
+// Socket.IO with CORS
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://smartprint.pages.dev",
+      process.env.CLIENT_URL
+    ].filter(Boolean); // Remove undefined values
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
   },
+  methods: ["GET", "POST"],
+  credentials: true,
+};
+
+const io = new Server(server, {
+  cors: corsOptions,
 });
 
 // Make io accessible to routes
@@ -48,12 +63,7 @@ app.use(
           },
   })
 );
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

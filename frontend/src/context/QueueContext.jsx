@@ -1,29 +1,25 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 import { queueService } from "../services/queueService";
+import socket from "../services/socket";
 
 const QueueContext = createContext(null);
 
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:5000";
-
 export const QueueProvider = ({ children }) => {
   const { token, isAuthenticated } = useAuth();
-  const [socket, setSocket] = useState(null);
   const [queue, setQueue] = useState([]);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !token) return;
 
-    const s = io(SOCKET_URL, {
-      auth: { token },
-      transports: ["websocket", "polling"],
-    });
+    // Authenticate socket with JWT token
+    socket.auth = { token };
+    socket.connect();
 
-    s.on("connect", async () => {
+    socket.on("connect", async () => {
       setConnected(true);
-      s.emit("joinQueue");
+      socket.emit("joinQueue");
       // Immediately fetch current queue via HTTP so we don't wait for next broadcast
       try {
         const data = await queueService.getQueue();
@@ -33,9 +29,9 @@ export const QueueProvider = ({ children }) => {
       } catch (_) { /* socket will eventually deliver updates */ }
     });
 
-    s.on("disconnect", () => setConnected(false));
+    socket.on("disconnect", () => setConnected(false));
 
-    s.on("queueUpdate", (payload) => {
+    socket.on("queueUpdate", (payload) => {
       // payload = { timestamp, queue: [...jobs], stats }
       const jobs = Array.isArray(payload) ? payload : (payload?.queue ?? []);
       // Ensure sorted by queuePosition ascending
@@ -43,11 +39,8 @@ export const QueueProvider = ({ children }) => {
       setQueue(sorted);
     });
 
-    setSocket(s);
-
     return () => {
-      s.disconnect();
-      setSocket(null);
+      socket.disconnect();
       setConnected(false);
     };
   }, [isAuthenticated, token]);
