@@ -126,14 +126,14 @@ export default function UploadPage() {
   return (
     <div className="page-wrapper">
       {/* Header */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
+      <div className="upload-page-header" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
         <div>
           <span style={{ fontSize:"0.68rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em",
             color:"var(--on-surface-variant)", display:"block", marginBottom:6 }}>New Submission</span>
           <h1 style={{ letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:8 }}>Upload Print Job</h1>
           <p style={{ maxWidth:420 }}>Upload your document — pages are detected automatically.</p>
         </div>
-        <div style={{ background:"var(--surface-container-low)", borderRadius:"var(--radius-xl)",
+        <div className="printer-status-card" style={{ background:"var(--surface-container-low)", borderRadius:"var(--radius-xl)",
           padding:"16px 24px", display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
           <div style={{ background:"rgba(0,104,121,0.1)", borderRadius:"var(--radius-full)", padding:10 }}>
             <span className="material-symbols-outlined" style={{ color:"var(--secondary)", fontSize:22 }}>verified</span>
@@ -147,7 +147,7 @@ export default function UploadPage() {
       </div>
 
       <form onSubmit={handleSubmit} id="upload-form">
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 380px", gap:32, alignItems:"start" }}>
+        <div className="upload-layout" style={{ display:"grid", gridTemplateColumns:"1fr 380px", gap:32, alignItems:"start" }}>
 
           {/* ── LEFT ── */}
           <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
@@ -357,7 +357,7 @@ export default function UploadPage() {
             )}
 
             {/* ── Settings bento ── */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+            <div className="settings-bento-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
               {/* Primary Config */}
               <div style={{ background:"var(--surface-container-low)", borderRadius:"var(--radius-xl)", padding:28 }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:20 }}>
@@ -454,7 +454,7 @@ export default function UploadPage() {
           </div>
 
           {/* ── RIGHT: Order Summary ── */}
-          <div style={{ position:"sticky", top:80 }}>
+          <div className="order-summary-card" style={{ position:"sticky", top:80 }}>
             <div style={{ background:"#1a1c2e", color:"#f0f0ff", borderRadius:"var(--radius-xl)",
               padding:32, boxShadow:"0 20px 60px rgba(0,0,0,0.25)", position:"relative", overflow:"hidden" }}>
               <div style={{ position:"absolute", top:-40, right:-40, width:120, height:120,
