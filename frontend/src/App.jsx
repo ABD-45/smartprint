@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { QueueProvider } from "./context/QueueContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { Sidebar } from "./components/Sidebar";
+import { Navbar } from "./components/Navbar";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage";
@@ -23,10 +25,24 @@ const ROLE_HOME = {
 
 const AppLayout = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
   if (!isAuthenticated) return <>{children}</>;
+  
   return (
     <div className="app-shell">
-      <Sidebar />
+      {/* Mobile Navbar */}
+      <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      
+      {/* Sidebar Overlay */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+      
+      {/* Sidebar */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      
       <div className="main-content">
         <header className="topbar">
           <span className="topbar-brand">SmartPrint</span>

@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import { useEffect, useState } from "react";
 
 const NAV_CONFIG = {
   student: [
@@ -21,10 +20,9 @@ const NAV_CONFIG = {
   ],
 };
 
-export const Sidebar = () => {
+export const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
 
   if (!user) return null;
 
@@ -32,43 +30,16 @@ export const Sidebar = () => {
 
   const handleLogout = () => { 
     logout(); 
-    navigate("/login"); 
-    setIsOpen(false);
+    navigate("/login");
+    if (onClose) onClose();
   };
 
   const handleLinkClick = () => {
     // Close sidebar on mobile after clicking a link
-    if (window.innerWidth <= 1024) {
-      setIsOpen(false);
+    if (window.innerWidth <= 1024 && onClose) {
+      onClose();
     }
   };
-
-  // Listen for hamburger button clicks
-  useEffect(() => {
-    const handleHamburgerClick = () => {
-      setIsOpen(prev => !prev);
-    };
-
-    const hamburger = document.querySelector('.hamburger-btn');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    if (hamburger) {
-      hamburger.addEventListener('click', handleHamburgerClick);
-    }
-    
-    if (overlay) {
-      overlay.addEventListener('click', () => setIsOpen(false));
-    }
-
-    return () => {
-      if (hamburger) {
-        hamburger.removeEventListener('click', handleHamburgerClick);
-      }
-      if (overlay) {
-        overlay.removeEventListener('click', () => setIsOpen(false));
-      }
-    };
-  }, []);
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
