@@ -49,6 +49,7 @@
 - [x] 6. Test authenticated requests with custom headers
 
 
+
   - Send a PATCH request with Authorization header from an allowed origin
   - Verify the request is accepted and processed
   - Verify the Authorization header is properly received by the backend

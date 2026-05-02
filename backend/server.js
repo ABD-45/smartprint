@@ -61,9 +61,6 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Explicit preflight handler for all routes
-app.options("*", cors(corsOptions));
-
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
