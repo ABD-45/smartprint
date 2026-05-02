@@ -20,21 +20,14 @@ const server = http.createServer(app);
 
 // Socket.IO with CORS
 const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      "https://smartprint.pages.dev",
-      process.env.CLIENT_URL
-    ].filter(Boolean); // Remove undefined values
-    
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://smartprint.pages.dev",
+    /\.smartprint\.pages\.dev$/  // Regex for subdomains
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
@@ -67,6 +60,9 @@ app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Explicit preflight handler for all routes
+app.options("*", cors(corsOptions));
 
 // API Routes
 app.use("/api/auth", authRoutes);
