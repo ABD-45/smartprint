@@ -73,7 +73,13 @@ p { color: var(--on-surface); font-weight: 400; }
 a { color: var(--primary); text-decoration: none; }
 
 /* ── App Shell ── */
-.app-shell { display: flex; min-height: 100vh; }
+.app-shell { 
+  display: flex; 
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
 
 .sidebar {
   width: 256px; flex-shrink: 0;
@@ -123,7 +129,22 @@ a { color: var(--primary); text-decoration: none; }
 .sidebar-cta-btn:hover { opacity: 0.92; transform: translateY(-1px); }
 .sidebar-footer { padding: 16px 0; border-top: 1px solid var(--surface-container-highest); }
 
-.main-content { margin-left: 256px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.main-content { 
+  margin-left: 0; /* Mobile first - no margin */
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Desktop: Add sidebar margin */
+@media (min-width: 1025px) {
+  .main-content {
+    margin-left: 256px;
+  }
+}
 
 .topbar {
   background: var(--surface-container-low); position: sticky; top: 0; z-index: 50;
