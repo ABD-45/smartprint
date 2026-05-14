@@ -79,7 +79,9 @@ a { color: var(--primary); text-decoration: none; }
   min-height: 100vh;
   width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
+  /* No overflow set here: overflow-x:hidden would implicitly force overflow-y:auto
+     (CSS spec), turning app-shell into a scroll container and breaking sticky topbar.
+     Horizontal overflow is already blocked by html,body {overflow-x:hidden}. */
 }
 
 .sidebar {
@@ -89,6 +91,7 @@ a { color: var(--primary); text-decoration: none; }
   display: flex; flex-direction: column; padding: 32px 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .sidebar-brand { padding: 0 32px 32px; }
 .sidebar-brand-title {
@@ -132,14 +135,15 @@ a { color: var(--primary); text-decoration: none; }
 .sidebar-cta-btn:hover { opacity: 0.92; transform: translateY(-1px); }
 .sidebar-footer { padding: 16px 0; border-top: 1px solid var(--surface-container-highest); }
 
-.main-content { 
+.main-content {
   margin-left: 0; /* Mobile first - no margin */
-  flex: 1; 
-  display: flex; 
-  flex-direction: column; 
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   width: 100%;
   max-width: 100vw;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Desktop: Add sidebar margin and constrain width so flex-column doesn't over-stretch */
@@ -441,11 +445,23 @@ tbody tr:hover { background: var(--surface-container-high); }
    RESPONSIVE DESIGN - MOBILE FIRST
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── CRITICAL: Prevent Horizontal Scroll ── */
-html, body {
+/* ── CRITICAL: Prevent Horizontal Scroll ──
+   Only restrict overflow on html (propagates to viewport). If body also gets
+   overflow-x:hidden, CSS spec implicitly sets body's overflow-y to auto, making
+   body an invisible scroll container. Pointer-based input (trackpad, touchscreen)
+   stops at the first overflow-y:auto ancestor — body can't scroll (height=content)
+   so the gesture is silently dropped. Keeping body overflow:visible lets events
+   pass through to the html/viewport scroll container. */
+html {
   overflow-x: hidden;
+  overflow-y: auto; /* explicit — avoids spec's visible→auto implicit promotion */
   width: 100%;
   max-width: 100vw;
+}
+body {
+  width: 100%;
+  max-width: 100vw;
+  /* No overflow set: body is NOT a scroll container on desktop. */
 }
 
 * {
@@ -461,6 +477,21 @@ html, body {
 
 /* Hide sidebar on mobile, show hamburger */
 @media (max-width: 1024px) {
+
+  /* ── Mobile scroll model: app-like (content scrolls inside viewport) ──
+     html/body are locked so the PAGE never scrolls.
+     .main-content is the one scroll container for the whole page. */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .app-shell {
+    height: 100vh;
+    min-height: unset;
+    overflow: hidden;
+  }
+
   .sidebar {
     position: fixed;
     left: -100%;
@@ -485,12 +516,18 @@ html, body {
   
   .sidebar-overlay.open {
     display: block;
+    touch-action: none;
   }
   
   .main-content {
     margin-left: 0;
     width: 100%;
     min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y; /* allow single-finger vertical scroll on touch/pointer devices */
   }
 
   /* Mobile navbar */
@@ -613,7 +650,10 @@ html, body {
     padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* Space for bottom nav */
     width: 100%;
     max-width: 100vw;
-    overflow-x: hidden;
+    /* overflow-x:hidden removed: it implicitly creates overflow-y:auto (CSS spec),
+       turning .page-wrapper into a scroll container that intercepts single-finger
+       touch events before they reach .main-content, causing touch scroll to fail.
+       .main-content already clips horizontal overflow for the whole scroll area. */
   }
   
   .topbar {
@@ -664,11 +704,38 @@ html, body {
     --section-gap: 32px;
     --card-padding: 32px;
   }
-  
-  .bottom-nav {
-    display: none; /* Hide bottom nav on desktop */
+
+  /* Desktop scroll model: normal page scroll.
+     Reset mobile app-shell height/overflow lock.
+     body:overflow:visible — body must NOT be a scroll container on desktop.
+     If body has overflow-y:auto (implicit from overflow-x:hidden), trackpad
+     and touch pointer events stop at body (can't scroll) instead of reaching
+     the html/viewport scroll container. */
+  html {
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
-  
+  body {
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    /* overflow-x:hidden is intentionally NOT set here — it would implicitly
+       force overflow-y:auto (CSS spec), making app-shell a scroll container
+       that consumes trackpad wheel events without visibly scrolling, since
+       its height always matches its content. html/body already block
+       horizontal overflow for the page. */
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
   .hamburger-btn {
     display: none;
   }
@@ -1037,32 +1104,27 @@ html, body {
   }
 }
 
-/* Prevent horizontal scroll */
-html, body {
-  overflow-x: hidden !important;
-  width: 100%;
-  max-width: 100vw;
+/* Prevent horizontal scroll — html only (see top-of-file comment on why not body) */
+html {
+  overflow-x: hidden;
 }
 
-* {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-img, video {
+/* Constrain replaced/media elements only — NOT all elements.
+   Applying max-width:100% globally prevents overflow-x:auto containers
+   (e.g. .table-wrapper) from actually scrolling their children. */
+img, video, canvas, svg, iframe, embed, object {
   max-width: 100%;
   height: auto;
 }
 
-/* Ensure key containers respect viewport width — do NOT include bare `div`,
-   as overflow-x:hidden on every div forces overflow-y to auto per CSS spec,
-   trapping scroll events inside each div and breaking page scrolling on mobile. */
-.app-shell,
-.main-content,
-.page-wrapper,
+/* Clip horizontal overflow on forms without creating a scroll container.
+   overflow-x:clip behaves like hidden (clips overflow) but does NOT establish
+   a block formatting context or scroll container, so it cannot intercept
+   touch/wheel events. overflow-x:hidden would implicitly set overflow-y:auto
+   (CSS spec), making every form an invisible scroll trap. */
 form {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ── Upload Page Responsive Layout ── */

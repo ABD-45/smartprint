@@ -27,10 +27,19 @@ const AppLayout = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Lock body scroll when sidebar overlay is open on mobile
+  // Lock scroll when the mobile sidebar overlay is open.
+  // Guard to desktop: overflow-x:hidden on html/body would implicitly set
+  // overflow-y:auto and kill page scroll on desktop if this ran unrestricted.
   useEffect(() => {
-    document.body.style.overflow = sidebarOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    const isMobile = window.matchMedia("(max-width: 1024px)").matches;
+    if (!isMobile) return;
+    const val = sidebarOpen ? "hidden" : "";
+    document.documentElement.style.overflow = val;
+    document.body.style.overflow = val;
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [sidebarOpen]);
 
   if (!isAuthenticated) return <>{children}</>;
