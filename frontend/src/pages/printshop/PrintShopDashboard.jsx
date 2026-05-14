@@ -112,7 +112,7 @@ export default function PrintShopDashboard() {
   return (
     <div className="page-wrapper">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 32 }}>
+      <div className="printshop-header" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 32 }}>
         <div>
           <span style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--on-surface-variant)", display: "block", marginBottom: 6 }}>
             Operator Panel
@@ -151,7 +151,7 @@ export default function PrintShopDashboard() {
       </div>
 
       {/* EQUAL 2-column layout — Live Queue LEFT | Job Actions RIGHT */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+      <div className="printshop-columns" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
 
         {/* ── LEFT: Live Queue ── */}
         <div style={{ background: "var(--surface-container-low)", borderRadius: "var(--radius-xl)", padding: 24 }}>

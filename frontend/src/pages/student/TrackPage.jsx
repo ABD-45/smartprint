@@ -52,7 +52,7 @@ export default function TrackPage() {
   return (
     <div className="page-wrapper">
       {/* Header */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "flex-end", marginBottom: 48 }}>
+      <div className="track-header-grid" style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "flex-end", marginBottom: 48 }}>
         <div>
           <span style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--on-surface-variant)", display: "block", marginBottom: 6 }}>
             {jobs.length} job{jobs.length !== 1 ? "s" : ""} total
@@ -67,7 +67,7 @@ export default function TrackPage() {
 
       {/* Live queue banner */}
       {firstQueued && firstInfo?.inQueue && (
-        <div style={{
+        <div className="track-queue-banner" style={{
           background: "var(--surface-container-low)", borderRadius: "var(--radius-xl)", padding: "20px 28px",
           display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32,
           borderLeft: "4px solid var(--primary)",
@@ -83,7 +83,7 @@ export default function TrackPage() {
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+          <div className="track-queue-stats" style={{ display: "flex", gap: 24, alignItems: "center" }}>
             {firstInfo.queueNumber && (
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontFamily: "var(--font-headline)", fontWeight: 900, fontSize: "1.6rem", color: "var(--primary)", letterSpacing: "-0.02em" }}>{firstInfo.queueNumber}</div>
