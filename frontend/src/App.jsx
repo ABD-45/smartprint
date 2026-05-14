@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { QueueProvider } from "./context/QueueContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -26,9 +26,15 @@ const ROLE_HOME = {
 const AppLayout = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
+  // Lock body scroll when sidebar overlay is open on mobile
+  useEffect(() => {
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [sidebarOpen]);
+
   if (!isAuthenticated) return <>{children}</>;
-  
+
   return (
     <div className="app-shell">
       {/* Mobile Navbar */}
